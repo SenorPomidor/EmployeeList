@@ -3,6 +3,9 @@ package com.project.EmployeeList.service;
 import com.project.EmployeeList.entity.Employee;
 import com.project.EmployeeList.repository.EmployeeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -10,7 +13,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-public class EmployeeService {
+public class EmployeeService implements UserDetailsService {
     private EmployeeRepository repository;
 
     @Autowired
@@ -46,5 +49,16 @@ public class EmployeeService {
     @Transactional
     public void deleteEmployee(Long id) {
         repository.deleteById(id);
+    }
+
+    @Override
+    public UserDetails loadUserByUsername(String login) throws UsernameNotFoundException {
+        Optional<Employee> employee = repository.findByLogin(login);
+
+        if (employee.isEmpty()) {
+            throw new UsernameNotFoundException("User not found");
+        }
+
+        return employee.get();
     }
 }

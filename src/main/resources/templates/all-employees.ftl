@@ -28,6 +28,7 @@
             </#list>
             <br>
             <input type="button" value="Add" onclick="window.location.href = 'addNewEmployee'"/>
+            <input type="button" value="Sign Out" onclick="window.location.href = 'logout'">
         </div>
     </body>
 </html>

@@ -3,13 +3,20 @@ package com.project.EmployeeList.controller;
 
 import com.project.EmployeeList.dto.EmployeeDTO;
 import com.project.EmployeeList.entity.Employee;
+import com.project.EmployeeList.entity.Role;
 import com.project.EmployeeList.mapper.EmployeeMapper;
 import com.project.EmployeeList.service.EmployeeService;
 import com.project.EmployeeList.util.ControllerUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -22,20 +29,30 @@ public class MainController {
 
     private final EmployeeMapper employeeMapper;
 
-    public MainController(EmployeeService employeeService, EmployeeMapper employeeMapper) {
+    private final PasswordEncoder passwordEncoder;
+
+    @Autowired
+    public MainController(EmployeeService employeeService, EmployeeMapper employeeMapper, PasswordEncoder passwordEncoder) {
         this.employeeService = employeeService;
         this.employeeMapper = employeeMapper;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @GetMapping("/")
-    public String showAllEmployees(Model model) {
-        List<Employee> employeeList = employeeService.getAllEmployees();
-        List<EmployeeDTO> dtos = employeeList.stream()
-                .map(employee -> employeeMapper.toDTO(employee))
-                .collect(Collectors.toList());
-        model.addAttribute("allEmps", dtos);
+    public String showAllEmployees(Model model, @AuthenticationPrincipal Employee employee) {
+        if (employee.getAuthorities().contains(Role.DIRECTOR)) {
+//        if (employee.getRole().contains(Role.DIRECTOR)) {
+            List<Employee> employeeList = employeeService.getAllEmployees();
+            List<EmployeeDTO> dtos = employeeList.stream()
+                    .filter(e -> !e.getAuthorities().contains(Role.DIRECTOR))
+                    .map(e -> employeeMapper.toDTO(e))
+                    .collect(Collectors.toList());
+            model.addAttribute("allEmps", dtos);
 
-        return "all-employees";
+            return "all-employees";
+        } else {
+            return "employee-main";
+        }
     }
 
     @GetMapping("/addNewEmployee")
@@ -100,7 +117,7 @@ public class MainController {
 
     @GetMapping("/deleteEmployee/{id}")
     public String deleteEmployee(@PathVariable Long id) {
-        Employee employee = employeeService.getEmployee(id);
+//        Employee employee = employeeService.getEmployee(id);
         employeeService.deleteEmployee(id);
 
         return "redirect:/";

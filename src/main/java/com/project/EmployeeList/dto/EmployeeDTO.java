@@ -1,11 +1,11 @@
 package com.project.EmployeeList.dto;
 
-import org.springframework.beans.factory.annotation.Value;
+import com.project.EmployeeList.entity.Role;
 
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
+import java.util.Set;
 
 public class EmployeeDTO {
     private Long id;
@@ -16,8 +16,14 @@ public class EmployeeDTO {
     @NotBlank(message = "Department can't be empty!")
     private String department;
     @NotNull(message = "Salary can't be empty!")
-    @Min(value = 100, message = "Salary should be bigger then 100!")
+    @Min(value = 100, message = "Salary should be more than 100!")
     private Integer salary;
+    @NotBlank(message = "Login can't be empty!")
+    private String login;
+    @NotBlank(message = "Password can't be empty!")
+    private String password;
+    @NotBlank(message = "Roles can't be empty!")
+    private Set<Role> role;
 
     public Long getId() {
         return id;
@@ -56,6 +62,30 @@ public class EmployeeDTO {
     }
 
     public void setSalary(Integer salary) { this.salary = salary; }
+
+    public String getLogin() {
+        return login;
+    }
+
+    public void setLogin(String login) {
+        this.login = login;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public Set<Role> getRole() {
+        return role;
+    }
+
+    public void setRole(Set<Role> role) {
+        this.role = role;
+    }
 
     @Override
     public String toString() {
