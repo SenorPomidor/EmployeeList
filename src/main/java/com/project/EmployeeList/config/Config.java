@@ -24,12 +24,12 @@ public class Config implements WebMvcConfigurer {
         return resolver;
     }
 
-    @Override
-    public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        registry.addResourceHandler("/img/**")
-                .addResourceLocations("/img/")
-                .addResourceLocations("classpath:/img/");
-    }
+//    @Override
+//    public void addResourceHandlers(ResourceHandlerRegistry registry) {
+//        registry.addResourceHandler("/images/**")
+//                .addResourceLocations("/images/")
+//                .addResourceLocations("classpath:/images/");
+//    }
 
     @Bean
     public PasswordEncoder getPasswordEncoder() {

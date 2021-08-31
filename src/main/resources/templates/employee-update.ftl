@@ -35,10 +35,26 @@
                     </#if>
                     <div>
                         <#if employeeSalary??>
-                            Salary: <input type="number" name="salary" value="${employee.salary}" placeholder="Salary"/>
-                        <#else>
                             Salary: <input type="number" name="salary" value="100" placeholder="Salary"/>
+                        <#else>
+                            Salary: <input type="number" name="salary" value="${employee.salary}" placeholder="Salary"/>
                         </#if>
+                    </div>
+                </div>
+                <div style="padding-bottom: 5px">
+                    <#if loginError??>
+                        <p style="color: red; font-size: 9px">${loginError}</p>
+                    </#if>
+                    <div>
+                        Login: <input type="text" name="login" value="${employee.login}" placeholder="Login"/>
+                    </div>
+                </div>
+                <div style="padding-bottom: 5px">
+                    <#if passwordError??>
+                        <p style="color: red; font-size: 9px">${passwordError}</p>
+                    </#if>
+                    <div>
+                        Password: <input type="text" name="password" value="${employee.password}" placeholder="Password"/>
                     </div>
                 </div>
                 <br>

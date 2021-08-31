@@ -2,6 +2,7 @@ package com.project.EmployeeList.dto;
 
 import com.project.EmployeeList.entity.Role;
 
+import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
@@ -17,12 +18,12 @@ public class EmployeeDTO {
     private String department;
     @NotNull(message = "Salary can't be empty!")
     @Min(value = 100, message = "Salary should be more than 100!")
+    @Max(value = 2000, message = "Salary should be less than 2000!")
     private Integer salary;
     @NotBlank(message = "Login can't be empty!")
     private String login;
     @NotBlank(message = "Password can't be empty!")
     private String password;
-    @NotBlank(message = "Roles can't be empty!")
     private Set<Role> role;
 
     public Long getId() {
