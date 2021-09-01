@@ -50,7 +50,7 @@
                 </div>
                 <div style="padding-bottom: 5px">
                     <#if passwordError??>
-                        <p style="color: red; font-size: 9px">${PasswordError}</p>
+                        <p style="color: red; font-size: 9px">${passwordError}</p>
                     </#if>
                     <div>
                         Password: <input type="text" name="password" placeholder="Password"/>

@@ -34,7 +34,7 @@
                         <p style="color: red; font-size: 9px">${salaryError}</p>
                     </#if>
                     <div>
-                        <#if employeeSalary??>
+                        <#if salaryError??>
                             Salary: <input type="number" name="salary" value="100" placeholder="Salary"/>
                         <#else>
                             Salary: <input type="number" name="salary" value="${employee.salary}" placeholder="Salary"/>
