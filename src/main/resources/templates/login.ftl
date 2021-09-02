@@ -4,8 +4,11 @@
         <div style="width: 50%; margin: 0 auto; text-align: center">
             <h2>Authorization</h2>
             <form action="/login" method="post">
+                <#if loginError?? || passwordError??>
+                    <p style="color: red; font-size: 9px">Login and password can't be empty!</p>
+                </#if>
                 <#if dataError??>
-                    <p style="color: red; font-size: 9px">${dataError}</p>
+                    <p style="color: red; font-size: 9px">Suck my dick!</p>
                 </#if>
                 <div>
                 <div style="padding-bottom: 5px">

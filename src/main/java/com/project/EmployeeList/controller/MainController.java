@@ -11,22 +11,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.validation.ObjectError;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Controller
@@ -67,9 +63,24 @@ public class MainController {
 
     @PostMapping("/login")
     public String authorization(
-            @ModelAttribute("employee") EmployeeDTO employeeDTO,
+            @ModelAttribute("employee") @Valid EmployeeDTO employeeDTO,
+            BindingResult bindingResult,
             Model model
     ) {
+
+//        Optional<Employee> loginError = employeeService.getEmployeeByLogin(employeeDTO.getLogin());
+//        Optional<Employee> passwordError = employeeService.getEmployeeByPassword(employeeDTO.getPassword());
+//
+//        if (loginError.isEmpty() || passwordError.isEmpty()) {
+//            ObjectError error = new ObjectError("dataError", "Invalid!");
+//            bindingResult.addError(error);
+//            model.addAttribute("dataError", "Invalid");
+//        }
+//
+//        if (bindingResult.hasErrors()) {
+//            return "redirect:/login";
+//        }
+
         Optional<Employee> employee = employeeService.getEmployeeByLogin(employeeDTO.getLogin());
 
         if (employee.isPresent()) {
@@ -95,7 +106,26 @@ public class MainController {
     public String reg() { return "registration"; }
 
     @PostMapping("/registration")
-    public String registration() { return "redirect:/"; }
+    public String registration(
+            @ModelAttribute("employee") @Valid EmployeeDTO employeeDTO,
+            BindingResult bindingResult,
+            Model model
+    ) {
+        if (bindingResult.hasErrors()) {
+            Map<String, String> errors = ControllerUtils.getErrors(bindingResult);
+
+            model.mergeAttributes(errors);
+
+            return "registration";
+        }
+
+        Employee employee = employeeMapper.toEntity(employeeDTO);
+        employee.setPassword(passwordEncoder.encode(employee.getPassword()));
+        employee.setRole(Collections.singleton(Role.DIRECTOR));
+        employeeService.saveEmployee(employee);
+
+        return "redirect:/";
+    }
 
     @PreAuthorize("hasAuthority('DIRECTOR')")
     @GetMapping("/addNewEmployee")
