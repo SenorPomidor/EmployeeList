@@ -40,12 +40,22 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         return authProvider;
     }
 
+
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        http.cors().and().csrf().disable().authorizeRequests()
-                .anyRequest().authenticated()
+        http
+                .authorizeRequests()
+                    .antMatchers("/login", "/logout", "/registration").permitAll()
+                    .anyRequest().authenticated()
                 .and()
-                .formLogin()
-                .permitAll();
+                    .formLogin()
+                    .loginPage("/login/")
+                    .loginProcessingUrl("/")
+                    .defaultSuccessUrl("/",true)
+                    .failureUrl("/login")
+                    .permitAll()
+                .and()
+                    .csrf()
+                    .disable();
     }
 }

@@ -9,17 +9,24 @@ import com.project.EmployeeList.service.EmployeeService;
 import com.project.EmployeeList.util.ControllerUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 
 import javax.validation.Valid;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Controller
@@ -39,7 +46,9 @@ public class MainController {
 
     @GetMapping("/")
     public String showAllEmployees(Model model, @AuthenticationPrincipal Employee employee) {
-        if (employee.getAuthorities().contains(Role.DIRECTOR)) {
+        if (employee == null) {
+            return "redirect:/login";
+        } else if (employee.getAuthorities().contains(Role.DIRECTOR)) {
             List<Employee> employeeList = employeeService.getAllEmployees();
             List<EmployeeDTO> dtos = employeeList.stream()
                     .filter(e -> !e.getAuthorities().contains(Role.DIRECTOR))
@@ -52,6 +61,41 @@ public class MainController {
             return "employee-main";
         }
     }
+
+    @GetMapping("/login")
+    public String login() { return "login"; }
+
+    @PostMapping("/login")
+    public String authorization(
+            @ModelAttribute("employee") EmployeeDTO employeeDTO,
+            Model model
+    ) {
+        Optional<Employee> employee = employeeService.getEmployeeByLogin(employeeDTO.getLogin());
+
+        if (employee.isPresent()) {
+            if (passwordEncoder.matches(employeeDTO.getPassword(), employee.get().getPassword())) {
+                Authentication authentication = new UsernamePasswordAuthenticationToken(
+                        employee.get(),
+                        null,
+                        Collections.singleton(Role.DIRECTOR)
+                );
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+                return "redirect:/";
+            } else {
+                model.addAttribute("dataError", "Invalid login or password!");
+                return "redirect:/login";
+            }
+        } else {
+            model.addAttribute("dataError", "Invalid login or password!");
+            return "redirect:/login";
+        }
+    }
+
+    @GetMapping("/registration")
+    public String reg() { return "registration"; }
+
+    @PostMapping("/registration")
+    public String registration() { return "redirect:/"; }
 
     @PreAuthorize("hasAuthority('DIRECTOR')")
     @GetMapping("/addNewEmployee")
@@ -95,7 +139,6 @@ public class MainController {
         if (bindingResult.hasErrors()) {
             Map<String, String> errors = ControllerUtils.getErrors(bindingResult);
 
-            System.out.println(errors);
             model.mergeAttributes(errors);
 
             return "employee-update";

@@ -51,6 +51,22 @@ public class EmployeeService implements UserDetailsService {
     }
 
     @Transactional
+    public boolean isEmployeeExist(String login) {
+        Optional<Employee> employee = repository.findByLogin(login);
+        if (employee.isEmpty()) {
+            throw new RuntimeException("Employee with login " + login + " not found!");
+        } else {
+            return true;
+        }
+    }
+
+    @Transactional
+    public Optional<Employee> getEmployeeByLogin(String login) {
+        Optional<Employee> employee = repository.findByLogin(login);
+        return employee;
+    }
+
+    @Transactional
     public void deleteEmployee(Long id) {
         repository.deleteById(id);
     }
