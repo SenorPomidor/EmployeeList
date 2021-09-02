@@ -6,7 +6,7 @@ This is a simple list editor that allows you to add new workers to the list, as 
 
 What I want to do:
 * Roles of employees (DONE);
-* Registration;
+* Registration (DONE);
 * Authorization (DONE);
 * Add/modify/delete tasks for employees.
 * ...
