@@ -64,24 +64,15 @@ public class MainController {
     @PostMapping("/login")
     public String authorization(
             @ModelAttribute("employee") @Valid EmployeeDTO employeeDTO,
-            BindingResult bindingResult,
             Model model
     ) {
 
-//        Optional<Employee> loginError = employeeService.getEmployeeByLogin(employeeDTO.getLogin());
-//        Optional<Employee> passwordError = employeeService.getEmployeeByPassword(employeeDTO.getPassword());
-//
-//        if (loginError.isEmpty() || passwordError.isEmpty()) {
-//            ObjectError error = new ObjectError("dataError", "Invalid!");
-//            bindingResult.addError(error);
-//            model.addAttribute("dataError", "Invalid");
-//        }
-//
-//        if (bindingResult.hasErrors()) {
-//            return "redirect:/login";
-//        }
-
         Optional<Employee> employee = employeeService.getEmployeeByLogin(employeeDTO.getLogin());
+
+        if (employeeDTO.getPassword().equals("") || employeeDTO.getLogin().equals("")) {
+            model.addAttribute("dataError", "Login and password can't be empty!");
+            return "redirect:/login";
+        }
 
         if (employee.isPresent()) {
             if (passwordEncoder.matches(employeeDTO.getPassword(), employee.get().getPassword())) {
@@ -93,11 +84,11 @@ public class MainController {
                 SecurityContextHolder.getContext().setAuthentication(authentication);
                 return "redirect:/";
             } else {
-                model.addAttribute("dataError", "Invalid login or password!");
+                model.addAttribute("data2Error", "Invalid login or password!");
                 return "redirect:/login";
             }
         } else {
-            model.addAttribute("dataError", "Invalid login or password!");
+            model.addAttribute("data2Error", "Invalid login or password!");
             return "redirect:/login";
         }
     }
@@ -119,10 +110,17 @@ public class MainController {
             return "registration";
         }
 
-        Employee employee = employeeMapper.toEntity(employeeDTO);
-        employee.setPassword(passwordEncoder.encode(employee.getPassword()));
-        employee.setRole(Collections.singleton(Role.DIRECTOR));
-        employeeService.saveEmployee(employee);
+        Optional<Employee> emp = employeeService.getEmployeeByLogin(employeeDTO.getLogin());
+
+        if (emp.isEmpty()) {
+            Employee employee = employeeMapper.toEntity(employeeDTO);
+            employee.setPassword(passwordEncoder.encode(employee.getPassword()));
+            employee.setRole(Collections.singleton(Role.DIRECTOR));
+            employeeService.saveEmployee(employee);
+        } else {
+            model.addAttribute("employeeExistsError", "Employee exists!");
+            return "redirect:/registration";
+        }
 
         return "redirect:/";
     }
