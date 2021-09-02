@@ -7,9 +7,6 @@
                 <#if loginError?? || passwordError??>
                     <p style="color: red; font-size: 9px">Login and password can't be empty!</p>
                 </#if>
-                <#if dataError??>
-                    <p style="color: red; font-size: 9px">Suck my dick!</p>
-                </#if>
                 <div>
                 <div style="padding-bottom: 5px">
                     <div>
