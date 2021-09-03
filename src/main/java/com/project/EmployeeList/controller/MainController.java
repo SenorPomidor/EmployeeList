@@ -18,6 +18,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.*;
 
@@ -63,7 +64,8 @@ public class MainController {
 
     @PostMapping("/login")
     public String authorization(
-            @ModelAttribute("employee") EmployeeDTO employeeDTO,
+            @ModelAttribute("employee") @Valid EmployeeDTO employeeDTO,
+            BindingResult bindingResult,
             Model model
     ) {
 
@@ -71,25 +73,20 @@ public class MainController {
 
         if (employeeDTO.getPassword().equals("") || employeeDTO.getLogin().equals("")) {
             model.addAttribute("dataError", "Login and password can't be empty!");
-            return "redirect:/login";
+            return "login";
         }
 
-        if (employee.isPresent()) {
-            if (passwordEncoder.matches(employeeDTO.getPassword(), employee.get().getPassword())) {
-                Authentication authentication = new UsernamePasswordAuthenticationToken(
-                        employee.get(),
-                        null,
-                        Collections.singleton(Role.DIRECTOR)
-                );
-                SecurityContextHolder.getContext().setAuthentication(authentication);
-                return "redirect:/";
-            } else {
-                model.addAttribute("data2Error", "Invalid login or password!");
-                return "redirect:/login";
-            }
+        if (employee.isPresent() && passwordEncoder.matches(employeeDTO.getPassword(), employee.get().getPassword())) {
+            Authentication authentication = new UsernamePasswordAuthenticationToken(
+                    employee.get(),
+                    null,
+                    Collections.singleton(Role.DIRECTOR)
+            );
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+            return "redirect:/";
         } else {
             model.addAttribute("data2Error", "Invalid login or password!");
-            return "redirect:/login";
+            return "login";
         }
     }
 
