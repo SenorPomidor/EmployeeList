@@ -63,7 +63,7 @@ public class MainController {
 
     @PostMapping("/login")
     public String authorization(
-            @ModelAttribute("employee") @Valid EmployeeDTO employeeDTO,
+            @ModelAttribute("employee") EmployeeDTO employeeDTO,
             Model model
     ) {
 
