@@ -1,6 +1,6 @@
 # EmployeeList
 
-This is a simple list editor that allows you to add new workers to the list, as well as change parameters and delete them.
+This is a simple list editor for directors that allows you to add new employees to the list, as well as change settings and delete them. The director can only manage the employees which he has added to the list.
 
 -----------------
 
