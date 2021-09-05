@@ -2,7 +2,7 @@
 <html>
     <body>
         <div style="width: 50%; margin: 0 auto; text-align: center">
-            <h2>Update Employee</h2>
+            <h2>Updating data about ${employee.name}</h2>
             <form action="/updateEmployee" method="post">
                 <#if employeeExistsError??>
                     <p style="color: red; font-size: 9px">${employeeExistsError}</p>

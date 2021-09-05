@@ -47,8 +47,11 @@ public class MainService {
             return "redirect:/login";
         } else if (employee.getAuthorities().contains(Role.DIRECTOR)) {
 
+            model.addAttribute("id", employee.getId());
             model.addAttribute("name", employee.getName());
             model.addAttribute("surname", employee.getSurname());
+
+            model.addAttribute("director");
 
             List<Employee> employeeList = employeeService.getAllEmployees();
             List<EmployeeDTO> dtos = employeeList.stream()

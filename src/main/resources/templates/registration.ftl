@@ -60,6 +60,7 @@
             </div>
         </div>
         <input type="submit" value="Sign up"/>
+        <input type="button" value="Back" onclick="window.location.href = 'login'">
     </form>
 </div>
 </body>
