@@ -17,6 +17,7 @@ public class EmployeeMapper {
         dto.setLogin(entity.getLogin());
         dto.setPassword(entity.getPassword());
         dto.setRole(entity.getRole());
+        dto.setDirector(entity.getDirector());
 
         return dto;
     }
@@ -32,6 +33,7 @@ public class EmployeeMapper {
         employee.setLogin(dto.getLogin());
         employee.setPassword(dto.getPassword());
         employee.setRole(dto.getRole());
+        employee.setDirector(dto.getDirector());
 
         return employee;
     }

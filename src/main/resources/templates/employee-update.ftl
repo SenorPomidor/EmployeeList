@@ -4,6 +4,9 @@
         <div style="width: 50%; margin: 0 auto; text-align: center">
             <h2>Update Employee</h2>
             <form action="/updateEmployee" method="post">
+                <#if employeeExistsError??>
+                    <p style="color: red; font-size: 9px">${employeeExistsError}</p>
+                </#if>
                 <input type="hidden" name="id" value="${employee.id}">
                 <div style="padding-bottom: 5px">
                     <#if nameError??>
@@ -37,7 +40,7 @@
                         <#if salaryError??>
                             Salary: <input type="number" name="salary" value="100" placeholder="Salary"/>
                         <#else>
-                            Salary: <input type="number" name="salary" value="${employee.salary}" placeholder="Salary"/>
+                            Salary: <input type="number" name="salary" value="${employee.salary?string.computer}" placeholder="Salary"/>
                         </#if>
                     </div>
                 </div>
@@ -59,6 +62,7 @@
                 </div>
                 <br>
                 <input type="submit" value="OK" />
+                <input type="button" value="To main" onclick="window.location.href = '/'"/>
             </form>
         </div>
     </body>

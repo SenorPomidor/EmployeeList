@@ -3,31 +3,28 @@ package com.project.EmployeeList.controller;
 
 import com.project.EmployeeList.dto.EmployeeDTO;
 import com.project.EmployeeList.entity.Employee;
-import com.project.EmployeeList.entity.Role;
 import com.project.EmployeeList.mapper.EmployeeMapper;
 import com.project.EmployeeList.service.EmployeeService;
-import com.project.EmployeeList.util.ControllerUtils;
+import com.project.EmployeeList.service.MainService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.FieldError;
-import org.springframework.validation.ObjectError;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 
 import javax.validation.Valid;
-import java.util.*;
-import java.util.stream.Collectors;
 
 @Controller
 public class MainController {
+
+    private final MainService mainService;
+
     private final EmployeeService employeeService;
 
     private final EmployeeMapper employeeMapper;
@@ -35,28 +32,16 @@ public class MainController {
     private final PasswordEncoder passwordEncoder;
 
     @Autowired
-    public MainController(EmployeeService employeeService, EmployeeMapper employeeMapper, PasswordEncoder passwordEncoder) {
+    public MainController(EmployeeService employeeService, EmployeeMapper employeeMapper, PasswordEncoder passwordEncoder, MainService mainService) {
         this.employeeService = employeeService;
         this.employeeMapper = employeeMapper;
         this.passwordEncoder = passwordEncoder;
+        this.mainService = mainService;
     }
 
     @GetMapping("/")
     public String showAllEmployees(Model model, @AuthenticationPrincipal Employee employee) {
-        if (employee == null) {
-            return "redirect:/login";
-        } else if (employee.getAuthorities().contains(Role.DIRECTOR)) {
-            List<Employee> employeeList = employeeService.getAllEmployees();
-            List<EmployeeDTO> dtos = employeeList.stream()
-                    .filter(e -> !e.getAuthorities().contains(Role.DIRECTOR))
-                    .map(e -> employeeMapper.toDTO(e))
-                    .collect(Collectors.toList());
-            model.addAttribute("allEmps", dtos);
-
-            return "all-employees";
-        } else {
-            return "employee-main";
-        }
+        return mainService.showAllEmployees(model, employee);
     }
 
     @GetMapping("/login")
@@ -64,30 +49,10 @@ public class MainController {
 
     @PostMapping("/login")
     public String authorization(
-            @ModelAttribute("employee") @Valid EmployeeDTO employeeDTO,
-            BindingResult bindingResult,
+            @ModelAttribute("employee") EmployeeDTO employeeDTO,
             Model model
     ) {
-
-        Optional<Employee> employee = employeeService.getEmployeeByLogin(employeeDTO.getLogin());
-
-        if (employeeDTO.getPassword().equals("") || employeeDTO.getLogin().equals("")) {
-            model.addAttribute("dataError", "Login and password can't be empty!");
-            return "login";
-        }
-
-        if (employee.isPresent() && passwordEncoder.matches(employeeDTO.getPassword(), employee.get().getPassword())) {
-            Authentication authentication = new UsernamePasswordAuthenticationToken(
-                    employee.get(),
-                    null,
-                    Collections.singleton(Role.DIRECTOR)
-            );
-            SecurityContextHolder.getContext().setAuthentication(authentication);
-            return "redirect:/";
-        } else {
-            model.addAttribute("data2Error", "Invalid login or password!");
-            return "login";
-        }
+        return mainService.authorization(employeeDTO, model);
     }
 
     @GetMapping("/registration")
@@ -99,59 +64,24 @@ public class MainController {
             BindingResult bindingResult,
             Model model
     ) {
-        if (bindingResult.hasErrors()) {
-            Map<String, String> errors = ControllerUtils.getErrors(bindingResult);
-
-            model.mergeAttributes(errors);
-
-            return "registration";
-        }
-
-        Optional<Employee> emp = employeeService.getEmployeeByLogin(employeeDTO.getLogin());
-
-        if (emp.isEmpty()) {
-            Employee employee = employeeMapper.toEntity(employeeDTO);
-            employee.setPassword(passwordEncoder.encode(employee.getPassword()));
-            employee.setRole(Collections.singleton(Role.DIRECTOR));
-            employeeService.saveEmployee(employee);
-        } else {
-            model.addAttribute("employeeExistsError", "Employee exists!");
-            return "redirect:/registration";
-        }
-
-        return "redirect:/";
+        return mainService.registration(employeeDTO, bindingResult, model);
     }
 
     @PreAuthorize("hasAuthority('DIRECTOR')")
     @GetMapping("/addNewEmployee")
     public String addNewEmployee(Model model) {
-        EmployeeDTO employee = new EmployeeDTO();
-        model.addAttribute("employee", employee);
-
-        return "employee-info";
+        return mainService.addNewEmployee(model);
     }
 
     @PreAuthorize("hasAuthority('DIRECTOR')")
     @PostMapping("/saveEmployee")
     public String saveEmployee(
             @ModelAttribute("employee") @Valid EmployeeDTO employeeDTO,
+            @AuthenticationPrincipal Employee employeeAuth,
             BindingResult bindingResult,
             Model model
     ) {
-        if (bindingResult.hasErrors()) {
-            Map<String, String> errors = ControllerUtils.getErrors(bindingResult);
-
-            model.mergeAttributes(errors);
-
-            return "employee-info";
-        }
-
-        Employee employee = employeeMapper.toEntity(employeeDTO);
-        employee.setPassword(passwordEncoder.encode(employee.getPassword()));
-        employee.setRole(Collections.singleton(Role.EMPLOYEE));
-        employeeService.saveEmployee(employee);
-
-        return "redirect:/";
+        return mainService.saveEmployee(employeeDTO, employeeAuth, bindingResult, model);
     }
 
     @PreAuthorize("hasAuthority('DIRECTOR')")
@@ -161,40 +91,18 @@ public class MainController {
             BindingResult bindingResult,
             Model model
     ) {
-        if (bindingResult.hasErrors()) {
-            Map<String, String> errors = ControllerUtils.getErrors(bindingResult);
-
-            model.mergeAttributes(errors);
-
-            return "employee-update";
-        }
-
-        Employee employee = employeeService.getEmployee(employeeDTO.getId());
-        employee.setName(employeeDTO.getName());
-        employee.setSurname(employeeDTO.getSurname());
-        employee.setDepartment(employeeDTO.getDepartment());
-        employee.setSalary(employeeDTO.getSalary());
-        employee.setLogin(employeeDTO.getLogin());
-        employee.setPassword(passwordEncoder.encode(employeeDTO.getPassword()));
-        employeeService.updateEmployee(employee);
-
-        return "redirect:/";
+        return mainService.updateEmployee(employeeDTO, bindingResult, model);
     }
 
     @PreAuthorize("hasAuthority('DIRECTOR')")
     @GetMapping("/updateEmployee/{id}")
     public String updateEmployee(Model model, @PathVariable Long id) {
-        Employee employee = employeeService.getEmployee(id);
-        model.addAttribute("employee", employeeMapper.toDTO(employee));
-
-        return "employee-update";
+        return mainService.updateEmployee(model, id);
     }
 
     @PreAuthorize("hasAuthority('DIRECTOR')")
     @GetMapping("/deleteEmployee/{id}")
     public String deleteEmployee(@PathVariable Long id) {
-        employeeService.deleteEmployee(id);
-
-        return "redirect:/";
+        return mainService.deleteEmployee(id);
     }
 }

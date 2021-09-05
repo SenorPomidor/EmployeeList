@@ -1,6 +1,8 @@
 package com.project.EmployeeList.dto;
 
+import com.project.EmployeeList.entity.Employee;
 import com.project.EmployeeList.entity.Role;
+import org.springframework.format.annotation.NumberFormat;
 
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
@@ -18,13 +20,14 @@ public class EmployeeDTO {
     private String department;
     @NotNull(message = "Salary can't be empty!")
     @Min(value = 100, message = "Salary should be more than 100!")
-    @Max(value = 2000, message = "Salary should be less than 2000!")
     private Integer salary;
     @NotBlank(message = "Login can't be empty!")
     private String login;
     @NotBlank(message = "Password can't be empty!")
     private String password;
     private Set<Role> role;
+    private Set<Employee> employee;
+    private Employee director;
 
     public Long getId() {
         return id;
@@ -86,6 +89,22 @@ public class EmployeeDTO {
 
     public void setRole(Set<Role> role) {
         this.role = role;
+    }
+
+    public Set<Employee> getEmployee() {
+        return employee;
+    }
+
+    public void setEmployee(Set<Employee> employee) {
+        this.employee = employee;
+    }
+
+    public Employee getDirector() {
+        return director;
+    }
+
+    public void setDirector(Employee director) {
+        this.director = director;
     }
 
     @Override

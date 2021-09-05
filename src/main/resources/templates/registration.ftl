@@ -4,6 +4,9 @@
 <div style="width: 50%; margin: 0 auto; text-align: center">
     <h2>Registration for directors</h2>
     <form action="/registration" method="post">
+        <#if employeeExistsError??>
+            <p style="color: red; font-size: 9px">${employeeExistsError}</p>
+        </#if>
         <div style="padding-bottom: 5px">
             <#if nameError??>
                 <p style="color: red; font-size: 9px">${nameError}</p>
@@ -33,7 +36,7 @@
                 <p style="color: red; font-size: 9px">${salaryError}</p>
             </#if>
             <div>
-                <#if employeeSalary??>
+                <#if salaryError??>
                     Salary: <input type="number" name="salary" value="100" placeholder="Salary"/>
                 <#else>
                     Salary: <input type="number" name="salary" placeholder="Salary"/>
@@ -53,7 +56,7 @@
                 <p style="color: red; font-size: 9px">${passwordError}</p>
             </#if>
             <div>
-                Password: <input type="text" name="password" placeholder="Password"/>
+                Password: <input type="password" name="password" placeholder="Password"/>
             </div>
         </div>
         <input type="submit" value="Sign up"/>

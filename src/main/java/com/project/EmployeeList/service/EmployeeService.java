@@ -1,6 +1,9 @@
 package com.project.EmployeeList.service;
 
+import com.project.EmployeeList.dto.EmployeeDTO;
 import com.project.EmployeeList.entity.Employee;
+import com.project.EmployeeList.entity.Role;
+import com.project.EmployeeList.mapper.EmployeeMapper;
 import com.project.EmployeeList.repository.EmployeeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -10,6 +13,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -19,10 +23,13 @@ public class EmployeeService implements UserDetailsService {
 
     private PasswordEncoder passwordEncoder;
 
+    private EmployeeMapper employeeMapper;
+
     @Autowired
-    public EmployeeService(EmployeeRepository repository, PasswordEncoder passwordEncoder) {
+    public EmployeeService(EmployeeRepository repository, PasswordEncoder passwordEncoder, EmployeeMapper employeeMapper) {
         this.repository = repository;
         this.passwordEncoder = passwordEncoder;
+        this.employeeMapper = employeeMapper;
     }
 
     @Transactional
@@ -31,7 +38,19 @@ public class EmployeeService implements UserDetailsService {
     }
 
     @Transactional
-    public Employee saveEmployee(Employee employee) {
+    public Employee saveEmployee(EmployeeDTO employeeDTO, Employee director) {
+        Employee employee = employeeMapper.toEntity(employeeDTO);
+        employee.setPassword(passwordEncoder.encode(employee.getPassword()));
+        employee.setRole(Collections.singleton(Role.EMPLOYEE));
+        employee.setDirector(director);
+        return repository.save(employee);
+    }
+
+    @Transactional
+    public Employee saveDirector(EmployeeDTO employeeDTO) {
+        Employee employee = employeeMapper.toEntity(employeeDTO);
+        employee.setPassword(passwordEncoder.encode(employee.getPassword()));
+        employee.setRole(Collections.singleton(Role.DIRECTOR));
         return repository.save(employee);
     }
 
@@ -51,19 +70,8 @@ public class EmployeeService implements UserDetailsService {
     }
 
     @Transactional
-    public boolean isEmployeeExist(String login) {
-        Optional<Employee> employee = repository.findByLogin(login);
-        if (employee.isEmpty()) {
-            throw new RuntimeException("Employee with login " + login + " not found!");
-        } else {
-            return true;
-        }
-    }
-
-    @Transactional
     public Optional<Employee> getEmployeeByLogin(String login) {
-        Optional<Employee> employee = repository.findByLogin(login);
-        return employee;
+        return repository.findByLogin(login);
     }
 
     @Transactional

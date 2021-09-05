@@ -2,6 +2,7 @@
 <html>
     <body>
         <div style="width: 60%; margin: 0 auto; text-align: center">
+            <h2>Wellcome, ${name} ${surname}!</h2>
             <h2>All Employees</h2>
             <#list allEmps>
                 <table style="border-collapse: collapse">

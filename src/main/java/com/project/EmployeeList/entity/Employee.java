@@ -38,6 +38,12 @@ public class Employee implements UserDetails {
     @Enumerated(EnumType.STRING)
     private Set<Role> role;
 
+    @OneToMany(mappedBy = "director")
+    private Set<Employee> employee;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "director_id")
+    private Employee director;
+
     public Employee() { }
 
     public Employee(String name, String surname,
@@ -121,6 +127,22 @@ public class Employee implements UserDetails {
 
     public void setRole(Set<Role> role) {
         this.role = role;
+    }
+
+    public Set<Employee> getEmployee() {
+        return employee;
+    }
+
+    public void setEmployee(Set<Employee> employee) {
+        this.employee = employee;
+    }
+
+    public Employee getDirector() {
+        return director;
+    }
+
+    public void setDirector(Employee director) {
+        this.director = director;
     }
 
     @Override
