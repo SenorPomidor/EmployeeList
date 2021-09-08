@@ -77,11 +77,11 @@ public class MainController {
     @PostMapping("/saveEmployee")
     public String saveEmployee(
             @ModelAttribute("employee") @Valid EmployeeDTO employeeDTO,
-            @AuthenticationPrincipal Employee employeeAuth,
             BindingResult bindingResult,
-            Model model
+            Model model,
+            @AuthenticationPrincipal Employee employeeAuth
     ) {
-        return mainService.saveEmployee(employeeDTO, employeeAuth, bindingResult, model);
+        return mainService.saveEmployee(employeeDTO, bindingResult, model, employeeAuth);
     }
 
     @PreAuthorize("hasAuthority('DIRECTOR')")

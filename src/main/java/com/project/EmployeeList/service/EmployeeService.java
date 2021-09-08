@@ -55,6 +55,12 @@ public class EmployeeService implements UserDetailsService {
     }
 
     @Transactional
+    public boolean isEmployeeExist(String login) {
+        Optional<Employee> employee = repository.findByLogin(login);
+        return employee.isPresent();
+    }
+
+    @Transactional
     public Employee updateEmployee(Employee employee) {
         return repository.save(employee);
     }

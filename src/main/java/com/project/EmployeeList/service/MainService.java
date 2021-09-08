@@ -51,8 +51,6 @@ public class MainService {
             model.addAttribute("name", employee.getName());
             model.addAttribute("surname", employee.getSurname());
 
-            model.addAttribute("director");
-
             List<Employee> employeeList = employeeService.getAllEmployees();
             List<EmployeeDTO> dtos = employeeList.stream()
                     .filter(e -> !e.getAuthorities().contains(Role.DIRECTOR))
@@ -69,6 +67,7 @@ public class MainService {
         }
     }
 
+    @Transactional
     public String authorization(
             EmployeeDTO employeeDTO,
             Model model
@@ -96,6 +95,7 @@ public class MainService {
         }
     }
 
+    @Transactional
     public String registration(
             EmployeeDTO employeeDTO,
             BindingResult bindingResult,
@@ -121,6 +121,7 @@ public class MainService {
         return "redirect:/";
     }
 
+    @Transactional
     public String addNewEmployee(Model model) {
         EmployeeDTO employee = new EmployeeDTO();
         model.addAttribute("employee", employee);
@@ -128,24 +129,35 @@ public class MainService {
         return "employee-info";
     }
 
+    @Transactional
     public String saveEmployee(
             EmployeeDTO employeeDTO,
-            Employee employeeAuth,
             BindingResult bindingResult,
-            Model model
+            Model model,
+            Employee employeeAuth
     ) {
         if (bindingResult.hasErrors()) {
             Map<String, String> errors = ControllerUtils.getErrors(bindingResult);
 
             model.mergeAttributes(errors);
 
-            return "employee-update";
+            return "employee-info";
         }
 
-        employeeService.saveEmployee(employeeDTO, employeeAuth);
+        Optional<Employee> emp = employeeService.getEmployeeByLogin(employeeDTO.getLogin());
 
-        return "redirect:/";
+        if (emp.isEmpty()) {
+            employeeService.saveEmployee(employeeDTO, employeeAuth);
+
+            return "redirect:/";
+        } else {
+            model.addAttribute("employeeExistsError", "User with this login exists!");
+
+            return "employee-info";
+        }
     }
+
+    @Transactional
     public String updateEmployee(
             EmployeeDTO employeeDTO,
             BindingResult bindingResult,
@@ -159,25 +171,27 @@ public class MainService {
             return "employee-update";
         }
 
-        Optional<Employee> emp = employeeService.getEmployeeByLogin(employeeDTO.getLogin());
+        Employee employee = employeeService.getEmployee(employeeDTO.getId());
 
-        if (emp.isEmpty()) {
-            Employee employee = employeeService.getEmployee(employeeDTO.getId());
+        if (!employeeService.isEmployeeExist(employeeDTO.getLogin()) || employee.getLogin().equals(employeeDTO.getLogin())) {
             employee.setName(employeeDTO.getName());
             employee.setSurname(employeeDTO.getSurname());
             employee.setDepartment(employeeDTO.getDepartment());
             employee.setSalary(employeeDTO.getSalary());
             employee.setLogin(employeeDTO.getLogin());
-            employee.setPassword(passwordEncoder.encode(employeeDTO.getPassword()));
+            if (!employee.getPassword().equals(employeeDTO.getPassword())) {
+                employee.setPassword(passwordEncoder.encode(employeeDTO.getPassword()));
+            }
             employeeService.updateEmployee(employee);
 
-            return "redirect:/";
+            model.addAttribute("employeeSuccessfullySaved", "Employee data has been successfully saved!");
         } else {
             model.addAttribute("employeeExistsError", "User with this login exists!");
-            return "employee-update";
         }
+        return "employee-update";
     }
 
+    @Transactional
     public String updateEmployee(Model model, Long id) {
         Employee employee = employeeService.getEmployee(id);
         model.addAttribute("employee", employeeMapper.toDTO(employee));
@@ -185,6 +199,7 @@ public class MainService {
         return "employee-update";
     }
 
+    @Transactional
     public String deleteEmployee(Long id) {
         employeeService.deleteEmployee(id);
 
