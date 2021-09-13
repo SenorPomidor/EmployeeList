@@ -1,9 +1,13 @@
 package com.project.EmployeeList.service;
 
 import com.project.EmployeeList.dto.EmployeeDTO;
+import com.project.EmployeeList.dto.TaskDTO;
 import com.project.EmployeeList.entity.Employee;
 import com.project.EmployeeList.entity.Role;
+import com.project.EmployeeList.entity.Task;
 import com.project.EmployeeList.mapper.EmployeeMapper;
+import com.project.EmployeeList.mapper.TaskMapper;
+import com.project.EmployeeList.repository.EmployeeRepository;
 import com.project.EmployeeList.util.ControllerUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -15,10 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -29,15 +30,23 @@ public class MainService {
 
     private EmployeeMapper employeeMapper;
 
+    private TaskService taskService;
+
+    private TaskMapper taskMapper;
+
     @Autowired
     public MainService(
             EmployeeService employeeService,
             PasswordEncoder passwordEncoder,
-            EmployeeMapper employeeMapper
+            EmployeeMapper employeeMapper,
+            TaskService taskService,
+            TaskMapper taskMapper
     ) {
         this.employeeService = employeeService;
         this.passwordEncoder = passwordEncoder;
         this.employeeMapper = employeeMapper;
+        this.taskService = taskService;
+        this.taskMapper = taskMapper;
     }
 
     @Transactional
@@ -197,6 +206,55 @@ public class MainService {
         model.addAttribute("employee", employeeMapper.toDTO(employee));
 
         return "employee-update";
+    }
+
+    @Transactional
+    public String showAllTasks(Long id, Model model) {
+        List<Task> tasks = taskService.showAllTasks(id);
+
+        List<TaskDTO> dtos = tasks.stream()
+                .map(t -> taskMapper.toDTO(t))
+                .collect(Collectors.toList());
+        model.addAttribute("allTasks", dtos);
+        model.addAttribute("id", id);
+
+        return "employee-tasks";
+    }
+
+    @Transactional
+    public String addNewTask(Long id, Model model) {
+        Employee employee = employeeService.getEmployee(id);
+        TaskDTO task = new TaskDTO();
+        model.addAttribute("task", task);
+        model.addAttribute("emp", employee);
+
+        return "add-task";
+    }
+
+    @Transactional
+    public String saveNewTask(
+            TaskDTO taskDTO,
+            EmployeeDTO employeeDTO,
+            BindingResult bindingResult,
+            Model model
+    ) {
+        if (bindingResult.hasErrors()) {
+            Map<String, String> errors = ControllerUtils.getErrors(bindingResult);
+
+            model.mergeAttributes(errors);
+
+            return "add-task";
+        }
+
+        Employee employee = employeeService.getEmployee(employeeDTO.getId());
+        taskDTO.setEmployee_id(employee);
+
+        Task task = taskMapper.toEntity(taskDTO);
+
+        taskService.saveTask(task);
+
+        return "redirect:/addNewTask/" + employeeDTO.getId();
+
     }
 
     @Transactional

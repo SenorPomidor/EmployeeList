@@ -2,7 +2,9 @@ package com.project.EmployeeList.controller;
 
 
 import com.project.EmployeeList.dto.EmployeeDTO;
+import com.project.EmployeeList.dto.TaskDTO;
 import com.project.EmployeeList.entity.Employee;
+import com.project.EmployeeList.entity.Task;
 import com.project.EmployeeList.mapper.EmployeeMapper;
 import com.project.EmployeeList.service.EmployeeService;
 import com.project.EmployeeList.service.MainService;
@@ -99,6 +101,44 @@ public class MainController {
     public String updateEmployee(Model model, @PathVariable Long id) {
         return mainService.updateEmployee(model, id);
     }
+
+    @PreAuthorize("hasAuthority('DIRECTOR')")
+    @GetMapping("/tasksList/{id}")
+    public String showAllTasks(@PathVariable Long id, Model model) {
+        return mainService.showAllTasks(id, model);
+    }
+
+    @PreAuthorize("hasAuthority('DIRECTOR')")
+    @GetMapping("/addNewTask/{id}")
+    public String addNewTask(@PathVariable Long id, Model model) {
+        return mainService.addNewTask(id, model);
+    }
+
+    @PreAuthorize("hasAuthority('DIRECTOR')")
+    @PostMapping("/saveNewTask")
+    public String saveNewTask(
+            @ModelAttribute("task") @Valid TaskDTO taskDTO,
+            BindingResult bindingResult,
+            Model model,
+            @ModelAttribute("emp") EmployeeDTO employeeDTO
+    ) {
+        return mainService.saveNewTask(taskDTO, employeeDTO, bindingResult, model);
+    }
+
+    @GetMapping("/soon")
+    public String soon() {
+        return "soon";
+    }
+
+//    @PreAuthorize("hasAuthority('DIRECTOR')")
+//    @GetMapping("/editTask/{id}")
+//    public String editTask(
+//            @PathVariable Long id,
+//            BindingResult bindingResult,
+//            Model model
+//    ) {
+//        return mainService.saveNewTask(id, bindingResult, model);
+//    }
 
     @PreAuthorize("hasAuthority('DIRECTOR')")
     @GetMapping("/deleteEmployee/{id}")

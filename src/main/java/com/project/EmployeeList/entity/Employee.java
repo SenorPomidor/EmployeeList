@@ -45,6 +45,9 @@ public class Employee implements UserDetails {
     @JoinColumn(name = "director_id")
     private Employee director;
 
+    @OneToMany(mappedBy = "employee")
+    private Set<Task> tasks;
+
     public Employee() { }
 
     public Employee(String name, String surname,
@@ -144,6 +147,14 @@ public class Employee implements UserDetails {
 
     public void setDirector(Employee director) {
         this.director = director;
+    }
+
+    public Set<Task> getTasks() {
+        return tasks;
+    }
+
+    public void setTasks(Set<Task> tasks) {
+        this.tasks = tasks;
     }
 
     @Override

@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
     <body>
-        <div style="width: 60%; margin: 0 auto; text-align: center">
+        <div style="width: 640px; margin: 0 auto; text-align: center">
             <h2>Wellcome, ${name} ${surname}!</h2>
             <input type="button" value="Your profile" onclick="window.location.href = 'updateEmployee/' + ${id}"/>
             <h2>All Employees</h2>
@@ -21,7 +21,8 @@
                             <td style="background-color: #e6eeff">${emp.department}</td>
                             <td style="background-color: #e6eeff">${emp.salary}</td>
                             <td style="background-color: #e6eeff">
-                                <input type="button" value="Update" onclick="window.location.href = 'updateEmployee/' + ${emp.id}"/>
+                                <input type="button" value="Tasks" onclick="window.location.href = 'tasksList/' + ${emp.id}">
+                                <input type="button" value="Edit profile" onclick="window.location.href = 'updateEmployee/' + ${emp.id}"/>
                                 <input type="button" value="Delete" onclick="window.location.href = 'deleteEmployee/' + ${emp.id}"/>
                             </td>
                         </tr>

@@ -2,9 +2,7 @@ package com.project.EmployeeList.dto;
 
 import com.project.EmployeeList.entity.Employee;
 import com.project.EmployeeList.entity.Role;
-import org.springframework.format.annotation.NumberFormat;
 
-import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
