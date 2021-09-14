@@ -172,13 +172,21 @@ public class MainService {
             BindingResult bindingResult,
             Model model
     ) {
-        if (bindingResult.hasErrors()) {
-            Map<String, String> errors = ControllerUtils.getErrors(bindingResult);
 
+        Map<String, String> errors = ControllerUtils.getErrors(bindingResult);
+
+        if (errors.containsKey("passwordError") && errors.containsKey("loginError")) {
+            errors.remove("passwordError");
+            errors.remove("loginError");
+        }
+
+        if (!errors.values().isEmpty()) {
             model.mergeAttributes(errors);
 
             return "employee-update";
         }
+
+        model.addAttribute("ps", "P.S. If you updated YOUR data, you can see it after reauthorization!");
 
         Employee employee = employeeService.getEmployee(employeeDTO.getId());
 
@@ -187,9 +195,11 @@ public class MainService {
             employee.setSurname(employeeDTO.getSurname());
             employee.setDepartment(employeeDTO.getDepartment());
             employee.setSalary(employeeDTO.getSalary());
-            employee.setLogin(employeeDTO.getLogin());
-            if (!employee.getPassword().equals(employeeDTO.getPassword())) {
-                employee.setPassword(passwordEncoder.encode(employeeDTO.getPassword()));
+            if (!employeeDTO.getLogin().isEmpty() && !employeeDTO.getPassword().isEmpty()) {
+                employee.setLogin(employeeDTO.getLogin());
+                if (!employee.getPassword().equals(employeeDTO.getPassword())) {
+                    employee.setPassword(passwordEncoder.encode(employeeDTO.getPassword()));
+                }
             }
             employeeService.updateEmployee(employee);
 
@@ -211,6 +221,10 @@ public class MainService {
     @Transactional
     public String showAllTasks(Long id, Model model) {
         List<Task> tasks = taskService.showAllTasks(id);
+
+        if (tasks.isEmpty()) {
+            model.addAttribute("noTasks", "Employee has no tasks!");
+        }
 
         List<TaskDTO> dtos = tasks.stream()
                 .map(t -> taskMapper.toDTO(t))
@@ -243,8 +257,10 @@ public class MainService {
 
             model.mergeAttributes(errors);
 
-            return "add-task";
+//            return "add-task";
         }
+
+        model.addAttribute("taskSuccessfullyAdded", "Task has been successfully added!");
 
         Employee employee = employeeService.getEmployee(employeeDTO.getId());
         taskDTO.setEmployee_id(employee);
@@ -253,8 +269,24 @@ public class MainService {
 
         taskService.saveTask(task);
 
-        return "redirect:/addNewTask/" + employeeDTO.getId();
+//        return "redirect:/addNewTask/" + employeeDTO.getId();
+        return "add-task";
+    }
 
+    @Transactional
+    public String employeeTasks(Model model, Employee employee) {
+        List<Task> tasks = employeeService.getAllTasks(employee.getId());
+
+        if (tasks.isEmpty()) {
+            model.addAttribute("noTasks", "You don't have tasks!");
+        }
+
+        List<TaskDTO> dtos = tasks.stream()
+                .map(t -> taskMapper.toDTO(t))
+                .collect(Collectors.toList());
+        model.addAttribute("allTasks", dtos);
+
+        return "employee-show-tasks";
     }
 
     @Transactional

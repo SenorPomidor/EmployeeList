@@ -108,6 +108,11 @@ public class MainController {
         return mainService.showAllTasks(id, model);
     }
 
+    @GetMapping("/employeeTasks")
+    public String employeeTasks(Model model, @AuthenticationPrincipal Employee employee) {
+        return mainService.employeeTasks(model, employee);
+    }
+
     @PreAuthorize("hasAuthority('DIRECTOR')")
     @GetMapping("/addNewTask/{id}")
     public String addNewTask(@PathVariable Long id, Model model) {

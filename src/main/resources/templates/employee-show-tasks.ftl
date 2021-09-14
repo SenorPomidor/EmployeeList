@@ -2,7 +2,7 @@
 <html>
 <body>
 <div style="width: 640px; margin: 0 auto; text-align: center">
-    <h2>All Tasks</h2>
+    <h2>Your tasks</h2>
     <#if noTasks??>
         <p style="color: red; font-size: 16px; font-weight: bold;">${noTasks}</p>
     </#if>
@@ -18,16 +18,13 @@
                     <td style="background-color: #e6eeff">${task.description}</td>
                     <td style="background-color: #e6eeff">${task.complete?c}</td>
                     <td style="background-color: #e6eeff">
-                        <input type="button" value="Edit" onclick="window.location.href = '/soon'">
-                        <input type="button" value="Return" onclick="window.location.href = '/soon'"/>
-                        <input type="button" value="Delete" onclick="window.location.href = '/soon'"/>
+                        <input type="button" value="Complete" onclick="window.location.href = '/soon'"/>
                     </td>
                 </tr>
             </#items>
         </table>
         <br>
     </#list>
-    <input type="button" value="Add new task" onclick="window.location.href = '/addNewTask/' + ${id}"/>
     <input type="button" value="To main" onclick="window.location.href = '/'">
 </div>
 </body>

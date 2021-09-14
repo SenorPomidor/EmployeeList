@@ -7,9 +7,6 @@
                 <#if employeeSuccessfullySaved??>
                     <p style="color: green; font-size: 9px">${employeeSuccessfullySaved}</p>
                 </#if>
-                <#if employeeExistsError??>
-                    <p style="color: red; font-size: 9px">${employeeExistsError}</p>
-                </#if>
                 <input type="hidden" name="id" value="${employee.id}">
                 <div style="padding-bottom: 5px">
                     <#if nameError??>
@@ -35,7 +32,7 @@
                         Department: <input type="text" name="department" value="${employee.department}" placeholder="Department"/>
                     </div>
                 </div>
-                <div style="padding-bottom: 5px">
+                <div>
                     <#if salaryError??>
                         <p style="color: red; font-size: 9px">${salaryError}</p>
                     </#if>
@@ -47,12 +44,19 @@
                         </#if>
                     </div>
                 </div>
+                <#if ps??>
+                    <p style="font-size: 9px; font-weight: bold;">${ps}</p>
+                </#if>
+                <h2>Update authorization data</h2>
+                <#if employeeExistsError??>
+                    <p style="color: red; font-size: 9px">${employeeExistsError}</p>
+                </#if>
                 <div style="padding-bottom: 5px">
                     <#if loginError??>
                         <p style="color: red; font-size: 9px">${loginError}</p>
                     </#if>
                     <div>
-                        Login: <input type="text" name="login" value="${employee.login}" placeholder="Login"/>
+                        New login: <input type="text" name="login" placeholder="Login"/>
                     </div>
                 </div>
                 <div style="padding-bottom: 5px">
@@ -60,7 +64,7 @@
                         <p style="color: red; font-size: 9px">${passwordError}</p>
                     </#if>
                     <div>
-                        Password: <input type="text" name="password" value="${employee.password}" placeholder="Password"/>
+                        New password: <input type="text" name="password" placeholder="Password"/>
                     </div>
                 </div>
                 <br>

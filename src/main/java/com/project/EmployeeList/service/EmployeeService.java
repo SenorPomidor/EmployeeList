@@ -3,6 +3,7 @@ package com.project.EmployeeList.service;
 import com.project.EmployeeList.dto.EmployeeDTO;
 import com.project.EmployeeList.entity.Employee;
 import com.project.EmployeeList.entity.Role;
+import com.project.EmployeeList.entity.Task;
 import com.project.EmployeeList.mapper.EmployeeMapper;
 import com.project.EmployeeList.repository.EmployeeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -94,5 +95,10 @@ public class EmployeeService implements UserDetailsService {
         }
 
         return employee.get();
+    }
+
+    @Transactional
+    public List<Task> getAllTasks(Long id) {
+        return repository.getEmployeeTasks(id);
     }
 }
