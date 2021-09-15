@@ -7,7 +7,6 @@ import com.project.EmployeeList.entity.Role;
 import com.project.EmployeeList.entity.Task;
 import com.project.EmployeeList.mapper.EmployeeMapper;
 import com.project.EmployeeList.mapper.TaskMapper;
-import com.project.EmployeeList.repository.EmployeeRepository;
 import com.project.EmployeeList.util.ControllerUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -257,7 +256,7 @@ public class MainService {
 
             model.mergeAttributes(errors);
 
-//            return "add-task";
+            return "add-task";
         }
 
         model.addAttribute("taskSuccessfullyAdded", "Task has been successfully added!");
@@ -269,7 +268,6 @@ public class MainService {
 
         taskService.saveTask(task);
 
-//        return "redirect:/addNewTask/" + employeeDTO.getId();
         return "add-task";
     }
 
