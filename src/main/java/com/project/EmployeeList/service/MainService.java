@@ -311,7 +311,6 @@ public class MainService {
         model.addAttribute("task", taskMapper.toDTO(task));
         model.addAttribute("id", task.getEmployee().getId());
 
-
         return "task-update";
     }
 
@@ -319,8 +318,7 @@ public class MainService {
     public String updateTask(
             TaskDTO taskDTO,
             BindingResult bindingResult,
-            Model model,
-            EmployeeDTO employeeDTO
+            Model model
     ) {
         if (bindingResult.hasErrors()) {
             Map<String, String> errors = ControllerUtils.getErrors(bindingResult);
@@ -332,13 +330,13 @@ public class MainService {
 
         model.addAttribute("taskSuccessfullyUpdated", "Task has been successfully updated!");
 
-        System.out.println(employeeDTO.toString());
-        System.out.println(taskDTO.getId());
-
         Task task = taskService.getTask(taskDTO.getId());
         task.setDescription(taskDTO.getDescription());
 
         taskService.saveTask(task);
+
+        model.addAttribute("task", taskMapper.toDTO(task));
+        model.addAttribute("id", task.getEmployee().getId());
 
         return "task-update";
     }

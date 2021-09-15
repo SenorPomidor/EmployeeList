@@ -18,7 +18,7 @@
                     <td style="background-color: #e6eeff">${task.description}</td>
                     <td style="background-color: #e6eeff">${task.complete?c}</td>
                     <td style="background-color: #e6eeff">
-                        <input type="button" value="Edit" onclick="window.location.href = '/soon'">
+                        <input type="button" value="Edit" onclick="window.location.href = '/updateTask/' + ${task.id}">
                         <#if task.complete = true>
                             <input type="button" value="Return task" onclick="window.location.href = '/returnTask/' + ${task.id}"/>
                         </#if>

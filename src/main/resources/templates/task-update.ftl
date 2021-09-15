@@ -15,6 +15,7 @@
             <div>
                 Description: <textarea name="description" placeholder="Description">${task.description}</textarea>
             </div>
+            <input type="hidden" name="employee" value="${task.employee}">
         </div>
         <br>
         <input type="submit" value="OK"/>

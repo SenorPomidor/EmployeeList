@@ -150,10 +150,9 @@ public class MainController {
     public String updateTask(
             @ModelAttribute("task") @Valid TaskDTO taskDTO,
             BindingResult bindingResult,
-            Model model,
-            @ModelAttribute("employee") EmployeeDTO employeeDTO
+            Model model
     ) {
-        return mainService.updateTask(taskDTO, bindingResult, model, employeeDTO);
+        return mainService.updateTask(taskDTO, bindingResult, model);
     }
 
     @PreAuthorize("hasAuthority('DIRECTOR')")
