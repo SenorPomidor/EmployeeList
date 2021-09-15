@@ -67,6 +67,24 @@ public class MainService {
                     .collect(Collectors.toList());
             model.addAttribute("allEmps", dtos);
 
+            //ToDo: display CompletedTasks/AllTasks
+
+//            List<Integer> allCompletedTasks = null;
+//            for (Employee emp : employeeList) {
+//                int countCompletedTasks = taskService.showAllTasks(emp.getId()).size();
+//                allCompletedTasks.add(countCompletedTasks);
+//            }
+//
+//            model.addAttribute("allCompletedTasks", allCompletedTasks);
+//
+//            List<Integer> allTasks = null;
+//            for (Employee emp : employeeList) {
+//                int countTasks = taskService.showAllTasks(emp.getId()).size();
+//                allTasks.add(countTasks);
+//            }
+//
+//            model.addAttribute("allTasks", allTasks);
+
             //ToDo: add pagination
 
             return "all-employees";
@@ -239,17 +257,17 @@ public class MainService {
         Employee employee = employeeService.getEmployee(id);
         TaskDTO task = new TaskDTO();
         model.addAttribute("task", task);
-        model.addAttribute("emp", employee);
+        model.addAttribute("employee", employee);
 
         return "add-task";
     }
 
     @Transactional
-    public String saveNewTask(
+    public String saveTask(
             TaskDTO taskDTO,
-            EmployeeDTO employeeDTO,
             BindingResult bindingResult,
-            Model model
+            Model model,
+            EmployeeDTO employeeDTO
     ) {
         if (bindingResult.hasErrors()) {
             Map<String, String> errors = ControllerUtils.getErrors(bindingResult);
@@ -288,9 +306,76 @@ public class MainService {
     }
 
     @Transactional
+    public String updateTask(Long id, Model model) {
+        Task task = taskService.getTask(id);
+        model.addAttribute("task", taskMapper.toDTO(task));
+        model.addAttribute("id", task.getEmployee().getId());
+
+
+        return "task-update";
+    }
+
+    @Transactional
+    public String updateTask(
+            TaskDTO taskDTO,
+            BindingResult bindingResult,
+            Model model,
+            EmployeeDTO employeeDTO
+    ) {
+        if (bindingResult.hasErrors()) {
+            Map<String, String> errors = ControllerUtils.getErrors(bindingResult);
+
+            model.mergeAttributes(errors);
+
+            return "task-update";
+        }
+
+        model.addAttribute("taskSuccessfullyUpdated", "Task has been successfully updated!");
+
+        System.out.println(employeeDTO.toString());
+        System.out.println(taskDTO.getId());
+
+        Task task = taskService.getTask(taskDTO.getId());
+        task.setDescription(taskDTO.getDescription());
+
+        taskService.saveTask(task);
+
+        return "task-update";
+    }
+
+    @Transactional
+    public String returnTask(Long id) {
+        Task task = taskService.getTask(id);
+        Employee employee = employeeService.getEmployee(task.getEmployee().getId());
+        task.setComplete(!task.isComplete());
+
+        taskService.saveTask(task);
+
+        return "redirect:/tasksList/" + employee.getId();
+    }
+
+    @Transactional
+    public String returnEmployeeTask(Long id) {
+        Task task = taskService.getTask(id);
+        task.setComplete(!task.isComplete());
+
+        taskService.saveTask(task);
+
+        return "redirect:/employeeTasks";
+    }
+
+    @Transactional
     public String deleteEmployee(Long id) {
         employeeService.deleteEmployee(id);
 
         return "redirect:/";
+    }
+
+    @Transactional
+    public String deleteTask(Long id) {
+        Employee employee = employeeService.getEmployee(taskService.getTask(id).getEmployee().getId());
+        taskService.deleteTask(id);
+
+        return "redirect:/tasksList/" + employee.getId();
     }
 }

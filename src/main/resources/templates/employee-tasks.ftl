@@ -19,8 +19,10 @@
                     <td style="background-color: #e6eeff">${task.complete?c}</td>
                     <td style="background-color: #e6eeff">
                         <input type="button" value="Edit" onclick="window.location.href = '/soon'">
-                        <input type="button" value="Return" onclick="window.location.href = '/soon'"/>
-                        <input type="button" value="Delete" onclick="window.location.href = '/soon'"/>
+                        <#if task.complete = true>
+                            <input type="button" value="Return task" onclick="window.location.href = '/returnTask/' + ${task.id}"/>
+                        </#if>
+                        <input type="button" value="Delete" onclick="window.location.href = '/deleteTask/' + ${task.id}"/>
                     </td>
                 </tr>
             </#items>

@@ -3,12 +3,12 @@
 <body>
 <div style="width: 50%; margin: 0 auto; text-align: center">
     <h2>Add task</h2>
-    <form action="/saveNewTask" method="post">
+    <form action="/saveTask" method="post">
         <div style="padding-bottom: 5px">
             <#if taskSuccessfullyAdded??>
                 <p style="color: green; font-size: 9px">${taskSuccessfullyAdded}</p>
             </#if>
-            <input type="hidden" name="id" value="${emp.id}">
+            <input type="hidden" name="id" value="${employee.id}">
             <#if descriptionError??>
                 <p style="color: red; font-size: 9px">${descriptionError}</p>
             </#if>
@@ -18,7 +18,7 @@
         </div>
         <br>
         <input type="submit" value="OK"/>
-        <input type="button" value="To list" onclick="window.location.href = '/tasksList/' + ${emp.id}">
+        <input type="button" value="To list" onclick="window.location.href = '/tasksList/' + ${employee.id}">
     </form>
 </div>
 </body>

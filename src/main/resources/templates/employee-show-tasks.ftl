@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <body>
-<div style="width: 640px; margin: 0 auto; text-align: center">
+<div style="width: 60%; margin: 0 20%; text-align: center">
     <h2>Your tasks</h2>
     <#if noTasks??>
         <p style="color: red; font-size: 16px; font-weight: bold;">${noTasks}</p>
@@ -18,7 +18,11 @@
                     <td style="background-color: #e6eeff">${task.description}</td>
                     <td style="background-color: #e6eeff">${task.complete?c}</td>
                     <td style="background-color: #e6eeff">
-                        <input type="button" value="Complete" onclick="window.location.href = '/soon'"/>
+                        <#if task.complete == true>
+                            <span style="font-size: 16px; font-weight: bold;">Sent!</span>
+                        <#else>
+                            <input type="button" value="Complete task" onclick="window.location.href = '/returnEmployeeTask/' + ${task.id}"/>
+                        </#if>
                     </td>
                 </tr>
             </#items>

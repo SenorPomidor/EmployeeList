@@ -12,6 +12,7 @@
                         <th style="width: 17%; padding: 2px 10px; background-color: #ccddff">Surname</th>
                         <th style="width: 17%; padding: 2px 10px; background-color: #ccddff">Department</th>
                         <th style="width: 17%; padding: 2px 10px; background-color: #ccddff">Salary</th>
+
                         <th style="width: 32%; padding: 2px 10px; background-color: #ccddff">Operations</th>
                     </tr>
                     <#items as emp>

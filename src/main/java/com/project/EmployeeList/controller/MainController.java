@@ -107,6 +107,8 @@ public class MainController {
         return mainService.showAllTasks(id, model);
     }
 
+    //ToDo: PreAuthorize doesn't work :(
+//    @PreAuthorize("hasAuthority('EMPLOYEE')")
     @GetMapping("/employeeTasks")
     public String employeeTasks(Model model, @AuthenticationPrincipal Employee employee) {
         return mainService.employeeTasks(model, employee);
@@ -119,14 +121,14 @@ public class MainController {
     }
 
     @PreAuthorize("hasAuthority('DIRECTOR')")
-    @PostMapping("/saveNewTask")
+    @PostMapping("/saveTask")
     public String saveNewTask(
             @ModelAttribute("task") @Valid TaskDTO taskDTO,
             BindingResult bindingResult,
             Model model,
-            @ModelAttribute("emp") EmployeeDTO employeeDTO
+            @ModelAttribute("employee") EmployeeDTO employeeDTO
     ) {
-        return mainService.saveNewTask(taskDTO, employeeDTO, bindingResult, model);
+        return mainService.saveTask(taskDTO, bindingResult, model, employeeDTO);
     }
 
     @GetMapping("/soon")
@@ -134,15 +136,46 @@ public class MainController {
         return "soon";
     }
 
-//    @PreAuthorize("hasAuthority('DIRECTOR')")
-//    @GetMapping("/editTask/{id}")
-//    public String editTask(
-//            @PathVariable Long id,
-//            BindingResult bindingResult,
-//            Model model
-//    ) {
-//        return mainService.saveNewTask(id, bindingResult, model);
-//    }
+    @PreAuthorize("hasAuthority('DIRECTOR')")
+    @GetMapping("/updateTask/{id}")
+    public String updateTask(
+            Model model,
+            @PathVariable Long id
+    ) {
+        return mainService.updateTask(id, model);
+    }
+
+    @PreAuthorize("hasAuthority('DIRECTOR')")
+    @PostMapping("/updateTask")
+    public String updateTask(
+            @ModelAttribute("task") @Valid TaskDTO taskDTO,
+            BindingResult bindingResult,
+            Model model,
+            @ModelAttribute("employee") EmployeeDTO employeeDTO
+    ) {
+        return mainService.updateTask(taskDTO, bindingResult, model, employeeDTO);
+    }
+
+    @PreAuthorize("hasAuthority('DIRECTOR')")
+    @GetMapping("/returnTask/{id}")
+    public String returnTask(
+            @PathVariable Long id
+    ) {
+        return mainService.returnTask(id);
+    }
+
+    @GetMapping("/returnEmployeeTask/{id}")
+    public String returnEmployeeTask(
+            @PathVariable Long id
+    ) {
+        return mainService.returnEmployeeTask(id);
+    }
+
+    @PreAuthorize("hasAuthority('DIRECTOR')")
+    @GetMapping("/deleteTask/{id}")
+    public String deleteTask(@PathVariable Long id) {
+        return mainService.deleteTask(id);
+    }
 
     @PreAuthorize("hasAuthority('DIRECTOR')")
     @GetMapping("/deleteEmployee/{id}")
