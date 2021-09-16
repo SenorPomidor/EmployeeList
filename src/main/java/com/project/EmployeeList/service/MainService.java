@@ -51,39 +51,43 @@ public class MainService {
     @Transactional
     public String showAllEmployees(Model model, Employee employee) {
 
-        if (employee == null) { //ToDo: find another way
+        if (employee == null) {
             return "redirect:/login";
-        } else if (employee.getAuthorities().contains(Role.DIRECTOR)) {
+        }
 
-            model.addAttribute("id", employee.getId());
-            model.addAttribute("name", employee.getName());
-            model.addAttribute("surname", employee.getSurname());
+        model.addAttribute("id", employee.getId());
+        model.addAttribute("name", employee.getName());
+        model.addAttribute("surname", employee.getSurname());
 
-            List<Employee> employeeList = employeeService.getAllEmployees();
-            List<EmployeeDTO> dtos = employeeList.stream()
-                    .filter(e -> !e.getAuthorities().contains(Role.DIRECTOR))
-                    .filter(e -> e.getDirector().getId().equals(employee.getId()))
-                    .map(e -> employeeMapper.toDTO(e))
-                    .collect(Collectors.toList());
-            model.addAttribute("allEmps", dtos);
+        if (employee.getAuthorities().contains(Role.DIRECTOR)) {
+            List<Employee> employeeList = employeeService.getAllEmployees(employee.getId());
 
-            //ToDo: display CompletedTasks/AllTasks
+            if (employeeList.isEmpty()) {
+                model.addAttribute("noEmployees", "There are no employees!");
+            } else {
+                List<EmployeeDTO> dtos = employeeList.stream()
+                        .filter(e -> !e.getAuthorities().contains(Role.DIRECTOR))
+                        .filter(e -> e.getDirector().getId().equals(employee.getId()))
+                        .map(e -> employeeMapper.toDTO(e))
+                        .collect(Collectors.toList());
+                model.addAttribute("allEmps", dtos);
 
-//            List<Integer> allCompletedTasks = null;
-//            for (Employee emp : employeeList) {
-//                int countCompletedTasks = taskService.showAllTasks(emp.getId()).size();
-//                allCompletedTasks.add(countCompletedTasks);
-//            }
-//
-//            model.addAttribute("allCompletedTasks", allCompletedTasks);
-//
-//            List<Integer> allTasks = null;
-//            for (Employee emp : employeeList) {
-//                int countTasks = taskService.showAllTasks(emp.getId()).size();
-//                allTasks.add(countTasks);
-//            }
-//
-//            model.addAttribute("allTasks", allTasks);
+                List<Integer> allCompletedTasks = new ArrayList<>();
+                for (Employee emp : employeeList) {
+                    int countCompletedTasks = taskService.getAllCompletedTasks(emp.getId()).size();
+                    allCompletedTasks.add(countCompletedTasks);
+                }
+
+                model.addAttribute("allCompletedTasks", allCompletedTasks);
+
+                List<Integer> allTasks = new ArrayList<>();
+                for (Employee emp : employeeList) {
+                    int countTasks = taskService.showAllTasks(emp.getId()).size();
+                    allTasks.add(countTasks);
+                }
+
+                model.addAttribute("allTasks", allTasks);
+            }
 
             //ToDo: add pagination
 
@@ -187,7 +191,8 @@ public class MainService {
     public String updateEmployee(
             EmployeeDTO employeeDTO,
             BindingResult bindingResult,
-            Model model
+            Model model,
+            Employee employeeAuth
     ) {
 
         Map<String, String> errors = ControllerUtils.getErrors(bindingResult);
@@ -202,8 +207,6 @@ public class MainService {
 
             return "employee-update";
         }
-
-        model.addAttribute("ps", "P.S. If you updated YOUR data, you can see it after reauthorization!");
 
         Employee employee = employeeService.getEmployee(employeeDTO.getId());
 
@@ -220,7 +223,12 @@ public class MainService {
             }
             employeeService.updateEmployee(employee);
 
-            model.addAttribute("employeeSuccessfullySaved", "Employee data has been successfully saved!");
+            if (employeeAuth.getId().equals(employeeDTO.getId())) {
+                model.addAttribute("successfullySaved", "Your data has been successfully saved!");
+                model.addAttribute("ps", "P.S. You can see your updated data on main page after reauthorization!");
+            } else {
+                model.addAttribute("successfullySaved", "Data about employee has been successfully saved!");
+            }
         } else {
             model.addAttribute("employeeExistsError", "User with this login exists!");
         }
@@ -236,20 +244,35 @@ public class MainService {
     }
 
     @Transactional
-    public String showAllTasks(Long id, Model model) {
+    public String showAllTasks(Long id, Model model, Employee employee) {
         List<Task> tasks = taskService.showAllTasks(id);
 
         if (tasks.isEmpty()) {
-            model.addAttribute("noTasks", "Employee has no tasks!");
+            if (employee.getAuthorities().contains(Role.DIRECTOR)) {
+                model.addAttribute("noTasks", "Employee has no tasks!");
+
+                return "employee-tasks";
+            } else {
+                model.addAttribute("noTasks", "You don't have tasks!");
+
+                return "employee-show-tasks";
+            }
+        } else {
+            List<TaskDTO> dtos = tasks.stream()
+                    .map(t -> taskMapper.toDTO(t))
+                    .collect(Collectors.toList());
+            model.addAttribute("allTasks", dtos);
+
+            if (employee.getAuthorities().contains(Role.DIRECTOR)) {
+                model.addAttribute("name", employeeService.getEmployee(id).getName());
+
+                model.addAttribute("id", id);
+
+                return "employee-tasks";
+            } else {
+                return "employee-show-tasks";
+            }
         }
-
-        List<TaskDTO> dtos = tasks.stream()
-                .map(t -> taskMapper.toDTO(t))
-                .collect(Collectors.toList());
-        model.addAttribute("allTasks", dtos);
-        model.addAttribute("id", id);
-
-        return "employee-tasks";
     }
 
     @Transactional
@@ -287,22 +310,6 @@ public class MainService {
         taskService.saveTask(task);
 
         return "add-task";
-    }
-
-    @Transactional
-    public String employeeTasks(Model model, Employee employee) {
-        List<Task> tasks = employeeService.getAllTasks(employee.getId());
-
-        if (tasks.isEmpty()) {
-            model.addAttribute("noTasks", "You don't have tasks!");
-        }
-
-        List<TaskDTO> dtos = tasks.stream()
-                .map(t -> taskMapper.toDTO(t))
-                .collect(Collectors.toList());
-        model.addAttribute("allTasks", dtos);
-
-        return "employee-show-tasks";
     }
 
     @Transactional
@@ -350,16 +357,6 @@ public class MainService {
         taskService.saveTask(task);
 
         return "redirect:/tasksList/" + employee.getId();
-    }
-
-    @Transactional
-    public String returnEmployeeTask(Long id) {
-        Task task = taskService.getTask(id);
-        task.setComplete(!task.isComplete());
-
-        taskService.saveTask(task);
-
-        return "redirect:/employeeTasks";
     }
 
     @Transactional

@@ -1,17 +1,17 @@
 <!DOCTYPE html>
 <html>
 <body>
-<div style="width: 640px; margin: 0 auto; text-align: center">
-    <h2>All Tasks</h2>
+<div style="width: 750px; margin: 0 auto; text-align: center">
+    <h2>All tasks employee's ${name}</h2>
     <#if noTasks??>
         <p style="color: red; font-size: 16px; font-weight: bold;">${noTasks}</p>
     </#if>
     <#list allTasks>
         <table style="border-collapse: collapse">
             <tr>
-                <th style="width: 17%; padding: 2px 10px; background-color: #ccddff">Description</th>
-                <th style="width: 17%; padding: 2px 10px; background-color: #ccddff">Complete</th>
-                <th style="width: 17%; padding: 2px 10px; background-color: #ccddff">Operations</th>
+                <th style="width: 400px; padding: 2px 10px; background-color: #ccddff">Description</th>
+                <th style="width: 150px; padding: 2px 10px; background-color: #ccddff">Complete</th>
+                <th style="width: 200px; padding: 2px 10px; background-color: #ccddff">Operations</th>
             </tr>
             <#items as task>
                 <tr class="${task?item_parity}Row">

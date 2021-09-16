@@ -90,9 +90,10 @@ public class MainController {
     public String updateEmployee(
             @ModelAttribute("employee") @Valid EmployeeDTO employeeDTO,
             BindingResult bindingResult,
-            Model model
+            Model model,
+            @AuthenticationPrincipal Employee employeeAuth
     ) {
-        return mainService.updateEmployee(employeeDTO, bindingResult, model);
+        return mainService.updateEmployee(employeeDTO, bindingResult, model, employeeAuth);
     }
 
     @PreAuthorize("hasAuthority('DIRECTOR')")
@@ -101,17 +102,12 @@ public class MainController {
         return mainService.updateEmployee(model, id);
     }
 
-    @PreAuthorize("hasAuthority('DIRECTOR')")
     @GetMapping("/tasksList/{id}")
-    public String showAllTasks(@PathVariable Long id, Model model) {
-        return mainService.showAllTasks(id, model);
-    }
-
-    //ToDo: PreAuthorize doesn't work :(
-//    @PreAuthorize("hasAuthority('EMPLOYEE')")
-    @GetMapping("/employeeTasks")
-    public String employeeTasks(Model model, @AuthenticationPrincipal Employee employee) {
-        return mainService.employeeTasks(model, employee);
+    public String showAllTasks(
+            @PathVariable Long id,
+            Model model,
+            @AuthenticationPrincipal Employee employeeAuth) {
+        return mainService.showAllTasks(id, model, employeeAuth);
     }
 
     @PreAuthorize("hasAuthority('DIRECTOR')")
@@ -157,17 +153,8 @@ public class MainController {
 
     @PreAuthorize("hasAuthority('DIRECTOR')")
     @GetMapping("/returnTask/{id}")
-    public String returnTask(
-            @PathVariable Long id
-    ) {
+    public String returnTask(@PathVariable Long id) {
         return mainService.returnTask(id);
-    }
-
-    @GetMapping("/returnEmployeeTask/{id}")
-    public String returnEmployeeTask(
-            @PathVariable Long id
-    ) {
-        return mainService.returnEmployeeTask(id);
     }
 
     @PreAuthorize("hasAuthority('DIRECTOR')")

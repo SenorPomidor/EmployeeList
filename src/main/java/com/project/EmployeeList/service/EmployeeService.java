@@ -34,8 +34,8 @@ public class EmployeeService implements UserDetailsService {
     }
 
     @Transactional
-    public List<Employee> getAllEmployees() {
-        return repository.getAllEmployees();
+    public List<Employee> getAllEmployees(Long directorId) {
+        return repository.getAllEmployees(directorId);
     }
 
     @Transactional

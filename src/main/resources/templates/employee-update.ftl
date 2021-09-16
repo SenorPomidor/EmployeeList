@@ -4,8 +4,8 @@
         <div style="width: 50%; margin: 0 auto; text-align: center">
             <h2>Updating data about ${employee.name}</h2>
             <form action="/updateEmployee" method="post">
-                <#if employeeSuccessfullySaved??>
-                    <p style="color: green; font-size: 9px">${employeeSuccessfullySaved}</p>
+                <#if successfullySaved??>
+                    <p style="color: green; font-size: 9px">${successfullySaved}</p>
                 </#if>
                 <input type="hidden" name="id" value="${employee.id}">
                 <div style="padding-bottom: 5px">
